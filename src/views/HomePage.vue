@@ -12,7 +12,7 @@
       <ion-list lines="none">
         <ion-item>
           <ion-input label="Message" label-placement="floating" v-model="message" :clear-input="true"></ion-input>
-          <ion-button slot="end" expand="block" :disabled="!supported" @click="notify($event)" size="default">Notify
+          <ion-button slot="end" expand="block" :disabled="!supported" @click="notify" size="default">Notify
             me</ion-button>
         </ion-item>
         <ion-item>
@@ -46,10 +46,9 @@ const options = () => ({
   tag: `tag-${notificationCount.value++}`,
   icon: "/pwa-192x192.png",
   vibrate: [200, 100, 200],
-  // badge: '/red-dot.png',
-  // actions: [ { action: 'Close', title: 'Close' }],
 } as UseWebNotificationOptions);
 let supported = false;
+let swRegistration: ServiceWorkerRegistration;
 
 onIonViewDidEnter(() => {
   const { isSupported, close, onClick, onShow } = useWebNotification(options());
@@ -71,7 +70,9 @@ onIonViewDidEnter(() => {
       duration: 3000,
     }).then(toast => toast.present());
   });
-  
+
+  navigator.serviceWorker.ready
+      .then((registration) => swRegistration = registration, console.error);
 });
 
 const updateAppBadge = async () => {
@@ -84,18 +85,14 @@ const updateAppBadge = async () => {
 
 watch(badgeCount, updateAppBadge);
 
-const notify = async (event: any) => {
-  const { show } = useWebNotification(options());
+const notify = () => {
   try {
-    await show(event);
+    swRegistration.showNotification("Vue Badger", options());
+    updateAppBadge();
   } catch (error) {
     console.log(error);
-    // for chrome android
-    navigator.serviceWorker.ready
-      .then((registration) => {
-        registration.showNotification("Vue Badger", options());
-        updateAppBadge();
-      });
+    const { show } = useWebNotification(options());
+    show();
   }
 };
 </script>
