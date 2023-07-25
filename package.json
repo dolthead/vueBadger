@@ -1,5 +1,5 @@
 {
-  "name": "vBadger",
+  "name": "vbadger",
   "private": false,
   "version": "0.0.1",
   "type": "module",
@@ -11,9 +11,9 @@
     "test:unit": "vitest",
     "lint": "eslint",
     "assets": "pwa-assets-generator",
-    "android": "~/Library/Android/sdk/emulator/emulator -avd Pixel_6_API_34",
+    "android": "~/Library/Android/sdk/emulator/emulator -avd Pixel_4_API_34",
     "https": "npx servor dist ./index.html --secure",
-    "deploy": "firebase deploy --only hosting"
+    "deploy": "vue-tsc && vite build && firebase deploy --only hosting"
   },
   "dependencies": {
     "@capacitor/app": "5.0.6",
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "5.2.2",
+    "@types/node": "^20.4.4",
     "@vite-pwa/assets-generator": "^0.0.4",
     "@vitejs/plugin-legacy": "^4.0.2",
     "@vitejs/plugin-vue": "^4.0.0",
@@ -43,7 +44,11 @@
     "vite": "^4.3.9",
     "vite-plugin-pwa": "^0.16.4",
     "vitest": "^0.32.2",
-    "vue-tsc": "^1.0.24"
+    "vue-tsc": "^1.0.24",
+    "workbox-build": "^7.0.0",
+    "workbox-core": "^7.0.0",
+    "workbox-routing": "^7.0.0",
+    "workbox-strategies": "^7.0.0"
   },
   "description": "An Ionic project"
 }

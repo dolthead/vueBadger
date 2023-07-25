@@ -1,7 +1,7 @@
 import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { defineConfig } from 'vite'
+import { UserConfigExport, defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
@@ -9,6 +9,9 @@ export default defineConfig({
     vue(),
     legacy(),
     VitePWA({
+      // strategies: 'injectManifest',
+      // srcDir: 'src',
+      // filename: 'sw.ts',
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
@@ -42,5 +45,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom'
-  }
-})
+  },
+	server: {
+		port: 8200,
+    open: true,
+	},
+});
