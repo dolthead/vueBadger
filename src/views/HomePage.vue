@@ -3,7 +3,7 @@
     <ion-header :translucent="true">
       <ion-toolbar color="primary">
         <ion-title>Vue PWA Notifications!</ion-title>
-        <ion-badge slot="end" color="danger">{{ badgeCount }}</ion-badge>
+        <ion-badge slot="end" color="danger" v-show="badgeCount">{{ badgeCount }}</ion-badge>
       </ion-toolbar>
     </ion-header>
 
