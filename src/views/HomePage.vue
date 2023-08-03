@@ -2,26 +2,39 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar color="primary">
-        <ion-title>Vue PWA Notify Me</ion-title>
+        <ion-title>Vue PWA Notifications!</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content>
 
-      <br>
-      <ion-list lines="none">
+      <ion-list lines="none" class="zoom">
+
         <ion-item>
           <ion-input label="Message" label-placement="floating" v-model="message" :clear-input="true"></ion-input>
-          <ion-button slot="end" expand="block" :disabled="!supported" @click="notify" size="default">Notify
-            me</ion-button>
         </ion-item>
+        <ion-button expand="block" :disabled="!supported" @click="notify" size="default">
+          Send Message
+        </ion-button>
+        <ion-item-divider />
         <ion-item>
-          <ion-input type="number" label-placement="floating" label="Badge count" v-model="badgeCount"></ion-input>
-          <ion-button slot="end" expand="block" :disabled="!supported" @click="badgeCount = 0" size="default">
-            Clear
-            <ion-badge v-if="badgeCount" color="danger">{{ badgeCount }}</ion-badge>
-          </ion-button>
+          <ion-fab-button slot="start" size="small" @click="updateBadgeCount(--badgeCount)">
+            <ion-icon :icon="remove"></ion-icon>
+          </ion-fab-button>
+          <ion-input class="elbow-room" type="number" label-placement="floating" label="Badge count" v-model="badgeCount"></ion-input>
+          <ion-fab-button slot="end" size="small" @click="updateBadgeCount(++badgeCount)">
+            <ion-icon :icon="add"></ion-icon>
+          </ion-fab-button>
         </ion-item>
+        <ion-button expand="block" :disabled="!supported || !badgeCount" @click="updateBadgeCount(0)" size="default">
+          Clear, Mark All Read
+          <ion-badge v-if="badgeCount" color="danger">{{ badgeCount }}</ion-badge>
+        </ion-button>
+        
+        <!-- <ion-item v-for="message of messageList" :key="message.id" :class="{ 'read' : message.read }">
+          <ion-icon icon="notifications" slot="start"></ion-icon>
+          <ion-label>{{ message.message }}</ion-label>
+        </ion-item> -->
       </ion-list>
 
     </ion-content>
@@ -29,13 +42,21 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonInput, IonBadge, IonList, IonItem, toastController, onIonViewDidEnter } from '@ionic/vue';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonInput, IonBadge, IonFabButton, IonItemDivider, IonList, IonItem, IonIcon, toastController, onIonViewDidEnter } from '@ionic/vue';
 import { UseWebNotificationOptions, useWebNotification } from '@vueuse/core'
+import { add, remove } from 'ionicons/icons';
 import { ref, watch } from 'vue';
 
 const message = ref('Hello World!');
 const notificationCount = ref(0);
 const badgeCount = ref(3);
+// const messageList = ref([
+//   { id: 1, message: 'Hello World!', read: false },
+//   { id: 2, message: 'Hello World!', read: false },
+//   { id: 3, message: 'Hello World!', read: false },
+//   { id: 4, message: 'Hello World!', read: true },
+// ]);
+// let nextId = 5;
 
 const options = () => ({
   title: message.value,
@@ -53,6 +74,8 @@ let swRegistration: ServiceWorkerRegistration;
 onIonViewDidEnter(() => {
   const { isSupported, close, onClick, onShow } = useWebNotification(options());
   supported = isSupported.value;
+
+  updateAppBadge();
 
   onShow(event => {
     console.log('Notification shown', event);
@@ -75,6 +98,13 @@ onIonViewDidEnter(() => {
       .then((registration) => swRegistration = registration, console.error);
 });
 
+const updateBadgeCount = async (x: number) => {
+  badgeCount.value = x;
+  if (badgeCount.value < 0) {
+    badgeCount.value = 0;
+  }
+};
+
 const updateAppBadge = async () => {
   if (badgeCount.value === 0) {
     navigator.clearAppBadge && await navigator.clearAppBadge();
@@ -86,12 +116,14 @@ const updateAppBadge = async () => {
 watch(badgeCount, updateAppBadge);
 
 const notify = () => {
-  try {
+  updateBadgeCount(++badgeCount.value);
+  // messageList.value.unshift({ id: nextId++, message: message.value, read: false });
+  // badgeCount.value++;
+  const { show } = useWebNotification(options());
+  if (swRegistration) {
     swRegistration.showNotification("Vue Badger", options());
     updateAppBadge();
-  } catch (error) {
-    console.log(error);
-    const { show } = useWebNotification(options());
+  } else {
     show();
   }
 };
@@ -110,6 +142,18 @@ ion-badge {
 
 ion-button {
   min-width: 130px;
-  margin-top: 16px;
+  margin-inline: 12px;
+}
+
+ion-item-divider {
+  border-bottom: none;
+  background-color: white;
+}
+
+.zoom {
+  zoom: 1.4;
+}
+.read {
+  color: gray;
 }
 </style>
