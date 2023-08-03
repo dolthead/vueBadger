@@ -17,6 +17,14 @@
         <ion-button expand="block" :disabled="!supported" @click="notify" size="default">
           Send Message
         </ion-button>
+        <ion-item v-show="!supported">
+          <ion-label class="icon-message">
+            To use notifications, you must open the Share
+            <ion-icon size="small" :icon="shareOutline"></ion-icon>
+            or More
+            <ion-icon size="small" :icon="ellipsisVerticalOutline"></ion-icon>
+            menu and select "Add to Home Screen". Then launch this with the newly created icon on your home screen.</ion-label>
+        </ion-item>
 
         <ion-item-divider />
 
@@ -40,7 +48,7 @@
 <script setup lang="ts">
 import { IonContent, IonHeader, IonPage, IonTitle, IonBadge, IonToolbar, IonButton, IonFabButton, IonInput, IonLabel, IonItemDivider, IonList, IonItem, IonIcon, toastController, onIonViewDidEnter } from '@ionic/vue';
 import { UseWebNotificationOptions, useWebNotification } from '@vueuse/core'
-import { trash } from 'ionicons/icons';
+import { trash, ellipsisVerticalOutline, shareOutline } from 'ionicons/icons';
 import { ref } from 'vue';
 
 const message = ref('Hello World!');
@@ -170,5 +178,11 @@ ion-fab-button {
 .inbox ion-label {
   font-weight: bold;
   font-size: x-large;
+}
+.icon-message {
+  white-space: normal;
+  & ion-icon {
+    margin-block: 0 -2px;
+  }
 }
 </style>
